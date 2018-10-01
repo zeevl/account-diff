@@ -3,11 +3,12 @@ Quickbooks.
 
 Usage:
 ```
-go run account-diff.go [verity|amex] ~/Downloads/History.csv ~/Downloads/Register-10.csv
+go run account-diff.go [verity|amex] [export from bank] [export from quickbooks]
+go run account-diff.go verity ~/Downloads/History.csv ~/Downloads/Register.csv
 ```
 
 `History.csv` is from Verity
-`Register-10.csv` is from Quickbooks
+`Register.csv` is from Quickbooks
 
 
 in QB:

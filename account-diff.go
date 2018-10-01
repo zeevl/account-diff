@@ -1,6 +1,7 @@
 package main
 
 import (
+	"sort"
 	"bufio"
 	"encoding/csv"
 	"fmt"
@@ -59,7 +60,16 @@ func parseCsv(file string, dateCol int, debitCol int, creditCol int, descCol int
 		}
 
 		lines = append(lines, Line{date: date, amt: math.Abs(amt), desc: record[descCol]})
-	}
+  }
+
+  if (len(lines) == 0) {
+    fmt.Printf("No lines found in %v!  Do not save file as UTF-8!\n", file)
+    os.Exit(1)
+  }
+
+  sort.Slice(lines, func(i, j int) bool {
+		return lines[i].date.Before(lines[j].date)
+	})
 
 	return lines
 }
@@ -96,21 +106,27 @@ func main() {
 	switch os.Args[1] {
 	case "verity":
 		fmt.Println("********* Parsing Verity ************")
-		a1 = parseCsv(os.Args[2], 1, 2, 2, 7, time.Time{}, "01/02/2006")
+		a1 = parseCsv(os.Args[2], 1, 2, 2, 7, time.Time{}, "1/2/2006")
 	case "amex":
 		fmt.Println("********* Parsing AmEx ************")
 		a1 = parseCsv(os.Args[2], 0, 7, 7, 2, time.Time{}, "1/2/06")
+	case "capone":
+		fmt.Println("********* Parsing CapOne ************")
+		a1 = parseCsv(os.Args[2], 0, 5, 6, 3, time.Time{}, "2006-01-02")
 	default:
-		panic("first arg must be 'verity' or 'amex'")
+		panic("first arg must be 'verity', 'capone' or 'amex'")
 	}
 
 	// second format is from quickbooks
 	fmt.Println("********* Parsing Quickbooks ************")
+
+	// be sure and verify credit, debit and desc cols are 4, 5, 3  -- sometimes theyre 5, 6, 4!
 	a2 := parseCsv(os.Args[3], 0, 5, 6, 4, a1[0].date, "01/02/2006")
+	// fmt.Printf("a1: %v\n a2: %v\n", a1, a2)
 
 	compareLines(a1, a2)
 
-	fmt.Println("In first but not in second: ")
+	fmt.Println("Missing from quickbooks: ")
 	for _, v := range a1 {
 		if v.found {
 			continue
@@ -118,7 +134,7 @@ func main() {
 		fmt.Printf("%s\t%0.2f\t%s\t%v\n", v.date.Format("01/02/2006"), v.amt, v.desc, v.found)
 	}
 
-	fmt.Println("In second but not in first: ")
+	fmt.Println("Extra in quickbooks: ")
 	for _, v := range a2 {
 		if v.found {
 			continue
