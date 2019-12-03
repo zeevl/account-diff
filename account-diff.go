@@ -103,10 +103,12 @@ func main() {
 	// first parameter is the bank export
 	var a1 []Line
 
+	// func parseCsv(file string, dateCol int, debitCol int, creditCol int, descCol int, start time.Time, dateFmt string)
+
 	switch os.Args[1] {
 	case "verity":
 		fmt.Println("********* Parsing Verity ************")
-		a1 = parseCsv(os.Args[2], 1, 2, 2, 7, time.Time{}, "1/2/2006")
+		a1 = parseCsv(os.Args[2], 1, 4, 5, 8, time.Time{}, "1/2/2006")
 	case "amex":
 		fmt.Println("********* Parsing AmEx ************")
 		a1 = parseCsv(os.Args[2], 0, 7, 7, 2, time.Time{}, "1/2/06")
@@ -121,7 +123,7 @@ func main() {
 	fmt.Println("********* Parsing Quickbooks ************")
 
 	// be sure and verify credit, debit and desc cols are 4, 5, 3  -- sometimes theyre 5, 6, 4!
-	a2 := parseCsv(os.Args[3], 0, 5, 6, 4, a1[0].date, "01/02/2006")
+	a2 := parseCsv(os.Args[3], 0, 4, 5, 3, a1[0].date, "01/02/2006")
 	// fmt.Printf("a1: %v\n a2: %v\n", a1, a2)
 
 	compareLines(a1, a2)
